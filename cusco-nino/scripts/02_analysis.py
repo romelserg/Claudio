@@ -29,6 +29,7 @@ CENSO_2017 = {
     "San Jerónimo": 57075, "Saylla": 5368, "Poroy": 2436, "Ccorca": 2246,
 }
 BUILT_T = 0.5  # umbral de building_presence
+SLOPE_T = 20.0  # grados
 
 
 def norm(s):
@@ -51,8 +52,24 @@ def hazard_class(v):
     return 0
 
 
+def load_hazard_raster(path):
+    """Ráster INGEMMET 2010 (celdas de 200 m): valores 1 = muy baja ... 5 = muy alta.
+
+    El orden se verificó con la pendiente media por clase (crece de 2 a 5) y con
+    puntos de control (llano amazónico = 1, cordillera = 4)."""
+    from rasterio.warp import reproject
+    from rasterio.enums import Resampling
+    hz = np.full((H, W), 0, np.uint8)
+    with rasterio.open(path) as src:
+        reproject(rasterio.band(src, 1), hz, dst_transform=TF, dst_crs=CRS,
+                  resampling=Resampling.nearest, src_nodata=255, dst_nodata=0)
+    return np.where(hz > 5, 0, hz).astype(np.uint8), "Value (1-5)"
+
+
 def load_hazard():
     path = HAZARD
+    if path.lower().endswith((".tif", ".tiff")):
+        return load_hazard_raster(path)
     if path.endswith(".zip"):
         path = "zip://" + os.path.abspath(path)
     g = gpd.read_file(path)
@@ -97,6 +114,7 @@ def hillshade(z, az=315, alt=40):
 
 def main():
     dem = REF.read(1)
+    hs, slope = hillshade(dem)
     b = {y: rasterio.open(os.path.join(DATA, f"buildings_{y}.tif")).read(1) for y in range(2016, 2024)}
     # Promedios de dos años para atenuar el ruido entre años del modelo.
     b_ini = (b[2016] + b[2017]) / 2
@@ -108,7 +126,12 @@ def main():
     with rasterio.open(os.path.join(DATA, "hazard.tif"), "w", driver="GTiff", width=W, height=H,
                        count=1, dtype="uint8", crs=CRS, transform=TF, compress="deflate") as o:
         o.write(hz, 1)
-    high = hz >= 4
+    # Zona crítica: susceptibilidad alta/muy alta (INGEMMET, 1:2 000 000) Y ladera >= 20°
+    # según Copernicus DEM a su resolución nativa (~30 m). El mapa nacional, solo, marca
+    # también el fondo plano del valle; la pendiente lo lleva a escala urbana.
+    from scipy.ndimage import uniform_filter
+    _, slope30 = hillshade(uniform_filter(dem.astype(np.float64), 6))
+    high = (hz >= 4) & (slope30 >= SLOPE_T)
 
     dist, ids = districts()
 
@@ -136,6 +159,9 @@ def main():
     g_all = (np.where(in_prov, net, 0)).sum()
     g_high = (np.where(in_prov & high, net, 0)).sum()
     stats["crecimiento_neto_en_alta_muy_alta_pct"] = round(float(g_high / g_all * 100), 1)
+    stats["edificado_2016_17_en_zona_critica_pct"] = round(
+        float((built_ini & high & in_prov).sum() / (built_ini & in_prov).sum() * 100), 1)
+    stats["criterio"] = f"INGEMMET alta/muy alta y pendiente >= {SLOPE_T:.0f}°"
     stats["edificado_2022_23_en_alta_muy_alta_pct"] = round(
         float((built_fin & high & in_prov).sum() / (built_fin & in_prov).sum() * 100), 1)
     stats["poblacion_2017_en_alta_muy_alta"] = int(round(float(pop[high].sum())))
@@ -164,12 +190,11 @@ def main():
     print(json.dumps(stats, ensure_ascii=False, indent=1))
     json.dump(stats, open(os.path.join(DATA, "stats.json"), "w"), ensure_ascii=False, indent=1)
 
-    hs, slope = hillshade(dem)
     np.savez_compressed(
         os.path.join(DATA, "layers.npz"),
         dem=dem.astype(np.float32), hs=hs.astype(np.float16), slope=slope.astype(np.float16),
         b=np.stack([b[y] for y in range(2016, 2024)]).astype(np.float16),
-        hz=hz, ids=ids, pop=pop, names=np.array(rows),
+        hz=hz, crit=high, ids=ids, pop=pop, names=np.array(rows),
     )
 
 

@@ -79,6 +79,7 @@ S = json.load(open(os.path.join(DATA, "stats.json")))
 hs = L["hs"].astype(np.float32)
 B = L["b"].astype(np.float32)          # (8, h, w) presencia 2016..2023
 hz = L["hz"]
+crit = L["crit"]
 ids = L["ids"]
 names = list(L["names"])
 gh, gw = hs.shape
@@ -116,13 +117,14 @@ def crop(a):
 hs_c = crop(hs)
 B_c = crop(B)
 hz_c = crop(hz)
+crit_c = crop(crit)
 ids_c = crop(ids)
 bini_c = crop(built_ini)
 ch, cw = hs_c.shape
 
 # Base de relieve: hillshade oscuro + leve tinte por pendiente.
 relief = (0.10 + 0.55 * hs_c ** 1.4)
-base_rgb = np.stack([relief * 0.20, relief * 0.25, relief * 0.30], -1) * 255 + np.array(BG) * 0.6
+base_rgb = (np.stack([relief * 0.20, relief * 0.25, relief * 0.30], -1) * 255 + np.array(BG) * 0.6).astype(np.float32)
 
 # Trama diagonal para "alta" (codificación secundaria, no solo color).
 yy, xx = np.mgrid[0:ch, 0:cw]
@@ -134,8 +136,8 @@ edge[:-1, :] |= ids_c[:-1, :] != ids_c[1:, :]
 edge[:, :-1] |= ids_c[:, :-1] != ids_c[:, 1:]
 edge = np.array(Image.fromarray(edge.astype(np.uint8) * 255).filter(ImageFilter.MaxFilter(5))) / 255.0
 
-# Contorno de zonas alta+muy alta.
-high_c = hz_c >= 4
+# Zona crítica: INGEMMET alta/muy alta + ladera >= 20°.
+high_c = crit_c
 hedge = np.zeros_like(high_c)
 hedge[:-1, :] |= high_c[:-1, :] != high_c[1:, :]
 hedge[:, :-1] |= high_c[:, :-1] != high_c[:, 1:]
@@ -188,13 +190,14 @@ def compose(t):
     # Peligro (escena 3 en adelante)
     a_hz = ease(seg(t, 7.0, 8.2))
     if a_hz > 0:
-        m_alta = (hz_c == 4).astype(np.float32)
-        m_malta = (hz_c == 5).astype(np.float32)
-        a1 = a_hz * (0.10 + 0.40 * hatch) * m_alta
-        a2 = a_hz * 0.36 * m_malta
+        # Contexto: INGEMMET alta/muy alta (celdas de 200 m) con trama; crítico: relleno rojo.
+        m_ing = (hz_c >= 4).astype(np.float32)
+        m_crit = high_c.astype(np.float32)
+        a1 = a_hz * (0.06 + 0.30 * hatch) * m_ing * (1 - m_crit)
+        a2 = a_hz * 0.34 * m_crit
         rgb = rgb * (1 - a1[..., None]) + np.array(ALTA) * a1[..., None]
         rgb = rgb * (1 - a2[..., None]) + np.array(MALTA) * a2[..., None]
-        ae = a_hz * 0.9 * hedge
+        ae = a_hz * 0.7 * hedge
         rgb = rgb * (1 - ae[..., None]) + np.array(MALTA) * ae[..., None]
 
     # Edificación nueva (aparece año a año)
@@ -213,7 +216,7 @@ def compose(t):
             # Tras mostrar el peligro, resalta lo nuevo dentro de alta/muy alta.
             k8 = ease(seg(t, 8.0, 9.0))
             a_new = a_new * (1 - 0.6 * k8 * (~high_c))
-            col = np.where(high_c[..., None], np.array(NEW) + (np.array(INK) - np.array(NEW)) * 0.35 * k8, col)
+            col = np.where(high_c[..., None], np.array(NEW) + (np.array(INK) - np.array(NEW)) * 0.55 * k8, col)
         rgb = rgb * (1 - a_new[..., None]) + col * a_new[..., None]
 
     # Límites distritales
@@ -341,44 +344,49 @@ def draw_frame(fi):
     a3 = ease(seg(t, 7.3, 7.9)) * (1 - ease(seg(t, 10.6, 11.0)))
     if a3 > 0:
         pct = S["crecimiento_neto_en_alta_muy_alta_pct"] * ease_out(seg(t, 7.4, 8.8))
-        text(d, (px0, PANEL_Y + 6), "XX %" if DRAFT else f"{pct:.0f} %", SG(120, 700), MALTA, "la", a3)
-        text(d, (px0 + 300, PANEL_Y + 30), "del crecimiento ocurrió", SG(34, 500), INK, "la", a3)
-        text(d, (px0 + 300, PANEL_Y + 72), "en zonas de susceptibilidad", SG(34, 500), INK, "la", a3)
-        text(d, (px0 + 300, PANEL_Y + 114), "ALTA o MUY ALTA a", SG(34, 700), INK, "la", a3)
-        text(d, (px0 + 300, PANEL_Y + 156), "movimientos en masa", SG(34, 500), INK, "la", a3)
+        text(d, (px0, PANEL_Y + 4), f"{pct:.1f} %".replace(".", ","), SG(104, 700), MALTA, "la", a3)
+        text(d, (px0 + 330, PANEL_Y + 18), "del crecimiento 2016–23", SG(32, 500), INK, "la", a3)
+        text(d, (px0 + 330, PANEL_Y + 58), "cayó en laderas ≥ 20° con", SG(32, 500), INK, "la", a3)
+        text(d, (px0 + 330, PANEL_Y + 98), "susceptibilidad ALTA o", SG(32, 700), INK, "la", a3)
+        text(d, (px0 + 330, PANEL_Y + 138), "MUY ALTA a huaicos y", SG(32, 700), INK, "la", a3)
+        text(d, (px0 + 330, PANEL_Y + 178), "deslizamientos", SG(32, 700), INK, "la", a3)
+        ratio = S["crecimiento_neto_en_alta_muy_alta_pct"] / S["edificado_2016_17_en_zona_critica_pct"]
+        stock = f"{S['edificado_2016_17_en_zona_critica_pct']:.1f}".replace(".", ",")
+        text(d, (px0, PANEL_Y + 236), f"{ratio:.1f}× la proporción de la ciudad de 2016 ({stock} %)".replace(".", ",", 1),
+             MONO(24, True), INK2, "la", a3)
         ly = MAP_Y - 34
-        # Leyenda con trama para "alta"
         sw = Image.new("RGB", (20, 20), BG)
         sd = ImageDraw.Draw(sw)
         for k in range(-20, 40, 6):
             sd.line([(k, 20), (k + 20, 0)], fill=ALTA, width=2)
         im.paste(Image.blend(Image.new("RGB", (20, 20), BG), sw, a3), (px0, ly - 10))
-        text(d, (px0 + 32, ly), "Alta", MONO(22), INK2, "lm", a3)
-        d.rectangle((px0 + 120, ly - 10, px0 + 140, ly + 10), fill=tuple(int(BG[i] + (MALTA[i] - BG[i]) * a3) for i in range(3)))
-        text(d, (px0 + 152, ly), "Muy alta", MONO(22), INK2, "lm", a3)
-        d.rectangle((px0 + 300, ly - 10, px0 + 320, ly + 10), fill=tuple(int(BG[i] + (NEW[i] - BG[i]) * a3) for i in range(3)))
-        text(d, (px0 + 332, ly), "Nuevo 2016→2023", MONO(22), INK2, "lm", a3)
+        text(d, (px0 + 32, ly), "INGEMMET alta/muy alta", MONO(21), INK2, "lm", a3)
+        d.rectangle((px0 + 340, ly - 10, px0 + 360, ly + 10), fill=tuple(int(BG[i] + (MALTA[i] - BG[i]) * a3) for i in range(3)))
+        text(d, (px0 + 372, ly), "+ ladera ≥20°", MONO(21), INK2, "lm", a3)
+        d.rectangle((px0 + 580, ly - 10, px0 + 600, ly + 10), fill=tuple(int(BG[i] + (NEW[i] - BG[i]) * a3) for i in range(3)))
+        text(d, (px0 + 612, ly), "Nuevo 2016→23", MONO(21), INK2, "lm", a3)
 
     # Escena 4: población por distrito (11–14.2 s)
     a4 = ease(seg(t, 11.0, 11.5)) * (1 - ease(seg(t, 14.0, 14.3)))
     if a4 > 0:
-        tot = S["poblacion_2017_en_alta_muy_alta"]
-        text(d, (px0, PANEL_Y - 6), "≈ XX XXX" if DRAFT else f"≈ {fmt(tot * ease_out(seg(t, 11.1, 12.3)))}",
-             SG(76, 700), INK, "la", a4)
-        text(d, (px0, PANEL_Y + 80), "habitantes viven sobre suelo de susceptibilidad alta o muy alta", SG(25, 500), INK2, "la", a4)
+        tot = round(S["poblacion_2017_en_alta_muy_alta"], -2)
+        text(d, (px0, PANEL_Y - 6), f"≈ {fmt(tot * ease_out(seg(t, 11.1, 12.3)))}", SG(76, 700), INK, "la", a4)
+        text(d, (px0, PANEL_Y + 80), "habitantes (Censo 2017) viven en esas laderas", SG(28, 500), INK2, "la", a4)
+        text(d, (W - 56, PANEL_Y + 124), "hab. · % del distrito", MONO(17), MUTED, "ra", a4)
         dist = sorted(S["distritos"].items(), key=lambda kv: -kv[1]["pob_alta_muy_alta"])[:5]
         mx = max(v["pob_alta_muy_alta"] for _, v in dist) or 1
-        by = PANEL_Y + 124
+        by = PANEL_Y + 150
         for j, (n, v) in enumerate(dist):
             g = ease_out(seg(t, 11.4 + j * 0.12, 12.4 + j * 0.12))
             y = by + j * 30
             text(d, (px0, y + 12), n, MONO(21), INK2, "lm", a4)
-            bw = (W - 56 - 280 - 150) * v["pob_alta_muy_alta"] / mx * g
+            bw = (W - 56 - 280 - 200) * v["pob_alta_muy_alta"] / mx * g
             if bw > 2:
                 c = tuple(int(BG[i] + (MALTA[i] - BG[i]) * a4) for i in range(3))
                 d.rounded_rectangle((px0 + 250, y + 2, px0 + 250 + bw, y + 22), radius=4, fill=c)
-            lab = "XX XXX · XX %" if DRAFT else f"{fmt(v['pob_alta_muy_alta'])} · {v['pob_alta_muy_alta_pct']:.0f} %"
-            text(d, (px0 + 262 + bw, y + 12), lab, MONO(20), INK, "lm", a4 * g)
+            pv = f"{v['pob_alta_muy_alta_pct']:.0f}"
+            lab = f"{fmt(round(v['pob_alta_muy_alta'], -1))} · {pv} %"
+            text(d, (px0 + 262 + bw, y + 12), lab, MONO(19), INK, "lm", a4 * g)
 
     # Escena 5: cierre (14–15 s)
     a5 = ease(seg(t, 14.1, 14.5))
@@ -390,9 +398,9 @@ def draw_frame(fi):
     fy = 1636
     text(d, (56, fy), HANDLE, MONO(22, True), INK, "la", a_h)
     src = [
-        "Fuentes: ENFEN Com. Of. 16-2026 · INGEMMET/CENEPRED susceptibilidad",
-        "Google Open Buildings 2.5D Temporal (2016–23) · INEI Censo 2017",
-        "Copernicus DEM GLO-30 · Límites: Overture Maps / OSM",
+        "Fuentes: ENFEN Com. Of. 16-2026 · INGEMMET (2010) Susceptibilidad",
+        "por mov. en masa 1:2M · Copernicus DEM GLO-30 · INEI Censo 2017",
+        "Google Open Buildings 2.5D Temporal (2016–23) · Límites: Overture/OSM",
     ]
     for k, s in enumerate(src):
         text(d, (56, fy + 32 + k * 24), s, MONO(17), MUTED, "la", a_h)
