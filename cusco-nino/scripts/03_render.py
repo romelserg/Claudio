@@ -15,7 +15,10 @@ PREVIEW = "--preview" in sys.argv
 # Borrador: capa de peligro de prueba -> se ocultan sus cifras y se marca el video.
 DRAFT = "--draft" in sys.argv
 
-W, H, FPS, DUR = 1080, 1920, 30, 15.0
+W, H, FPS, DUR = 1080, 1920, 30, 20.0
+# Las escenas están coreografiadas sobre una línea de tiempo de 15 s ("tiempo de guion");
+# el video se estira a DUR para dar más tiempo de lectura.
+STORY = 15.0
 N = int(FPS * DUR)
 
 # Paleta (validada sobre superficie oscura #0A0E13).
@@ -48,6 +51,21 @@ def font(name, size, wght=None):
 
 def SG(size, w=700):
     return font("SpaceGrotesk[wght].ttf", size, w)
+
+
+TITLE_1 = "El fenómeno del Niño 2026–27:"
+TITLE_2 = "susceptibilidad a huaycos"
+_FIT = {}
+
+
+def fit(txt, w, size, maxw=W - 108):
+    """Space Grotesk al mayor tamaño <= size que entra en el ancho útil."""
+    key = (txt, w, size)
+    if key not in _FIT:
+        while size > 20 and SG(size, w).getlength(txt) > maxw:
+            size -= 2
+        _FIT[key] = SG(size, w)
+    return _FIT[key]
 
 
 def MONO(size, bold=False):
@@ -95,7 +113,7 @@ CAM1 = 2500                   # ancho final (12.5 km)
 
 
 def cam(t):
-    w = CAM0 + (CAM1 - CAM0) * ease(t / DUR)
+    w = CAM0 + (CAM1 - CAM0) * ease(t / STORY)
     cx = CX + 120 * ease(seg(t, 6.5, 11))
     return cx, CY, w
 
@@ -263,7 +281,7 @@ def text(d, xy, s, f, fill, anchor="la", alpha=1.0):
 
 
 def draw_frame(fi):
-    t = fi / FPS
+    t = fi / FPS * STORY / DUR
     im = Image.new("RGB", (W, H), BG)
     mp, box, camw = map_frame(t)
     im.paste(mp, (0, MAP_Y))
@@ -302,10 +320,10 @@ def draw_frame(fi):
 
     # ---------- Cabecera ----------
     a_h = ease_out(seg(t, 0.0, 0.8))
-    text(d, (56, 236), "CUSCO · URBANISMO Y RIESGO", MONO(24, True), NEW, "la", a_h)
-    title_y = 280 + 24 * (1 - a_h)
-    text(d, (54, title_y), "El Niño 2026–27", SG(84, 700), INK, "la", a_h)
-    text(d, (54, title_y + 98), "y una ciudad que sube por las laderas", SG(42, 500), INK2, "la", a_h)
+    title_y = 232 + 24 * (1 - a_h)
+    text(d, (54, title_y), "El fenómeno del Niño 2026–27:", fit(TITLE_1, 700, 76), INK, "la", a_h)
+    text(d, (54, title_y + 96), "susceptibilidad a huaycos", fit(TITLE_2, 600, 56), INK2, "la", a_h)
+    text(d, (54, title_y + 160), "y deslizamientos", fit(TITLE_2, 600, 56), INK2, "la", a_h)
 
     # ---------- Paneles por escena ----------
     px0 = 56
@@ -348,7 +366,7 @@ def draw_frame(fi):
         text(d, (px0 + 330, PANEL_Y + 18), "del crecimiento 2016–23", SG(32, 500), INK, "la", a3)
         text(d, (px0 + 330, PANEL_Y + 58), "cayó en laderas ≥ 20° con", SG(32, 500), INK, "la", a3)
         text(d, (px0 + 330, PANEL_Y + 98), "susceptibilidad ALTA o", SG(32, 700), INK, "la", a3)
-        text(d, (px0 + 330, PANEL_Y + 138), "MUY ALTA a huaicos y", SG(32, 700), INK, "la", a3)
+        text(d, (px0 + 330, PANEL_Y + 138), "MUY ALTA a huaycos y", SG(32, 700), INK, "la", a3)
         text(d, (px0 + 330, PANEL_Y + 178), "deslizamientos", SG(32, 700), INK, "la", a3)
         ratio = S["crecimiento_neto_en_alta_muy_alta_pct"] / S["edificado_2016_17_en_zona_critica_pct"]
         stock = f"{S['edificado_2016_17_en_zona_critica_pct']:.1f}".replace(".", ",")
@@ -416,7 +434,7 @@ def draw_frame(fi):
 def main():
     if PREVIEW:
         for t in (1.5, 5.0, 9.5, 12.8, 14.7):
-            draw_frame(int(t * FPS)).save(OUT.replace(".mp4", f"_t{t:04.1f}.png"))
+            draw_frame(int(t * DUR / STORY * FPS)).save(OUT.replace(".mp4", f"_t{t:04.1f}.png"))
         return
     cmd = ["ffmpeg", "-y", "-loglevel", "error", "-f", "rawvideo", "-pix_fmt", "rgb24", "-s", f"{W}x{H}",
            "-r", str(FPS), "-i", "-", "-c:v", "libx264", "-preset", "slow", "-crf", "17",

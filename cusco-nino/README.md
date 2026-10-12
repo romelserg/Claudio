@@ -1,16 +1,16 @@
-# Cusco frente a El Niño 2026–27: una ciudad que sube por las laderas
+# El fenómeno del Niño 2026–27: susceptibilidad a huaycos y deslizamientos (Cusco)
 
-Historia de Instagram (1080×1920, 15 s, 30 fps) para **@sieteborreguitos**.
+Historia de Instagram (1080×1920, 20 s, 30 fps) para **@sieteborreguitos**.
 
 ## Qué muestra
 
 | Escena | Tiempo | Contenido |
 |---|---|---|
-| 1 | 0–2.5 s | Estado oficial: ENFEN mantiene la **Alerta de El Niño Costero** (Com. Of. 16-2026). |
-| 2 | 2.5–7 s | Crecimiento de la superficie edificada, 2016 → 2023, año por año. |
-| 3 | 7–11 s | **Zona crítica**: susceptibilidad alta o muy alta (INGEMMET) y ladera ≥ 20°. Muestra qué % del crecimiento cayó ahí. |
-| 4 | 11–14 s | Habitantes (Censo 2017) que viven en zona crítica, por distrito. |
-| 5 | 14–15 s | Firma y fuentes. |
+| 1 | 0–3.3 s | Estado oficial: ENFEN mantiene la **Alerta de El Niño Costero** (Com. Of. 16-2026). |
+| 2 | 3.3–9.3 s | Crecimiento de la superficie edificada, 2016 → 2023, año por año. |
+| 3 | 9.3–14.7 s | **Zona crítica**: susceptibilidad alta o muy alta (INGEMMET) y ladera ≥ 20°. Muestra qué % del crecimiento cayó ahí. |
+| 4 | 14.7–18.7 s | Habitantes (Censo 2017) que viven en zona crítica, por distrito. |
+| 5 | 18.7–20 s | Firma y fuentes. |
 
 ## Fuentes
 
