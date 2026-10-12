@@ -5,7 +5,6 @@ Todas las capas se llevan a una grilla común UTM 19S (EPSG:32719).
 Fuentes:
 - Google Open Buildings 2.5D Temporal v1 (2016-2023), banda building_presence.
 - Copernicus DEM GLO-30 (ESA / Airbus).
-- Meta & CIESIN High Resolution Settlement Layer v1.5 (población total, <5 años, 60+).
 - Overture Maps Foundation, divisions (límites distritales derivados de OSM).
 """
 import json
@@ -97,30 +96,31 @@ def dem():
     write(out, dst, "float32")
 
 
-def hrsl(kind):
-    out = os.path.join(DATA, f"pop_{kind}.tif")
+def divisions():
+    """Límites distritales (Overture Maps, release 2026-09-23.1) alrededor de Cusco."""
+    out = os.path.join(DATA, "divisions.gpkg")
     if os.path.exists(out):
         return
-    sub = {"general": "general", "under5": "children_under_five", "60plus": "elderly_60_plus"}[kind]
-    url = (f"/vsicurl/https://dataforgood-fb-data.s3.amazonaws.com/hrsl-cogs/hrsl_{sub}/v1.5/"
-           f"cog_globallat_-20_lon_-80_{sub}-v1.5.4.tif")
-    with rasterio.open(url) as src:
-        # Ventana geográfica del área; la población es un conteo, se reparte por área.
-        win = src.window(-72.15, -13.70, -71.70, -13.38)
-        arr = src.read(1, window=win).astype(np.float32)
-        arr = np.where(np.isnan(arr) | (arr < 0), 0, arr)
-        tf = src.window_transform(win)
-        total_src = arr.sum()
-        dst = np.zeros((H, W), np.float32)
-        reproject(arr, dst, src_transform=tf, src_crs=src.crs, dst_transform=DST_TF,
-                  dst_crs=DST_CRS, resampling=Resampling.sum, dst_nodata=0)
-    print(kind, "pob. en ventana fuente", round(float(total_src)), "en grilla", round(float(dst.sum())))
-    write(out, dst, "float32")
+    import geopandas as gpd
+    import pyarrow.compute as pc
+    import pyarrow.dataset as ds
+    import pyarrow.fs as pfs
+    import shapely
+    fs = pfs.S3FileSystem(anonymous=True, region="us-west-2")
+    d = ds.dataset("overturemaps-us-west-2/release/2026-09-23.1/theme=divisions/type=division_area/",
+                   filesystem=fs, format="parquet")
+    f = ((pc.field("bbox", "xmin") < -71.75) & (pc.field("bbox", "xmax") > -72.15)
+         & (pc.field("bbox", "ymin") < -13.40) & (pc.field("bbox", "ymax") > -13.70)
+         & (pc.field("country") == "PE"))
+    df = d.to_table(filter=f, columns=["id", "names", "subtype", "class", "region", "geometry"]).to_pandas()
+    df["name"] = df["names"].apply(lambda n: n["primary"] if n else None)
+    g = gpd.GeoDataFrame(df.drop(columns=["names", "geometry"]),
+                         geometry=shapely.from_wkb(df["geometry"]), crs=4326)
+    g.to_file(out)
 
 
 if __name__ == "__main__":
     dem()
-    for k in ("general", "under5", "60plus"):
-        hrsl(k)
+    divisions()
     for y in YEARS:
         buildings(y)

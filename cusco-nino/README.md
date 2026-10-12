@@ -46,10 +46,12 @@ Historia de Instagram (1080×1920, 20 s, 30 fps) para **@sieteborreguitos**.
 ## Reproducir
 
 ```bash
-python scripts/01_download.py <datos>
-unzip 'data/MOVIMIENTOS EN MASA  INGEMMET geogpsperu.zip'   # extrae RASTER/su_mm_peru.tif
-python scripts/02_analysis.py <datos> <ruta>/RASTER/su_mm_peru.tif
-python scripts/03_render.py <datos> <fuentes_ttf> build/cusco_nino.mp4
+python -m venv .venv && source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install -r requirements.txt                       # además: ffmpeg en el PATH
+./run.sh descarga   # datos base en datos/ (se salta lo que ya existe)
+./run.sh analisis   # stats.json y layers.npz (usa el zip de INGEMMET en data/)
+./run.sh preview    # 5 fotogramas de control en build/
+./run.sh video      # MP4 final en build/ (20-35 min)
 ```
 
 Fuentes tipográficas: Space Grotesk e IBM Plex Mono (OFL, repositorio google/fonts).

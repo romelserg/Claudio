@@ -68,6 +68,13 @@ def load_hazard_raster(path):
 
 def load_hazard():
     path = HAZARD
+    if path.lower().endswith(".zip"):
+        # Zip de INGEMMET vía GeoGPS Perú: usa el ráster que trae dentro.
+        import zipfile
+        names = zipfile.ZipFile(path).namelist()
+        tif = [n for n in names if n.lower().endswith("su_mm_peru.tif") and "__MACOSX" not in n]
+        if tif:
+            return load_hazard_raster(f"/vsizip/{os.path.abspath(path)}/{tif[0]}")
     if path.lower().endswith((".tif", ".tiff")):
         return load_hazard_raster(path)
     if path.endswith(".zip"):
