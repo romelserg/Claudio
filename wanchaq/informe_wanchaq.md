@@ -140,7 +140,7 @@ Otros datos de Wánchaq: 78,4 % de las viviendas son de ladrillo; 10,4 % son pro
 
 **Lectura para la política:**
 - **Recursos propios fuertes.** Wánchaq tiene la mayor capacidad de recaudación relativa del Cusco: los impuestos municipales son el 37 % del presupuesto y crecieron 27 % entre 2024 y 2025.
-- **Poca inversión.** Invierte la menor proporción de su presupuesto de toda la provincia: 35 %, frente a 62–69 % en sus vecinos.
+- **Inversión: el problema es la fuente, no el volumen** *(corregido; ver [análisis de inversión](analisis_inversion.md))*. El 35 % es menor que en sus vecinos (62–69 %), pero eso se explica porque recibe mucho menos canon por habitante (S/ 271 frente a S/ 552–881). Frente a distritos consolidados de Lima y Arequipa (5–20 %), invierte más. Lo preocupante es que el 99 % de la inversión depende de canon, deuda o donaciones: los recursos propios van en un 99,3 % a gasto corriente.
 - **La inversión se fue a la propia sede.** Casi un tercio de la inversión 2024–2025 fue a infraestructura administrativa. En cambio, saneamiento, residuos y transporte reciben poco.
 - **Dependencia del canon.** El canon del gas de Camisea, que es volátil, pesa entre 27 % y 37 %. Bajó de S/ 22,0 M en 2024 a S/ 16,7 M en 2025.
 - **Ejecución irregular.** El 92,5 % de 2025 es real, pero en 2021–2023 la ejecución de inversiones estuvo entre 54 % y 62 %.
@@ -213,7 +213,7 @@ En una encuesta de 2019–2021 a 382 ciudadanos, el **68,6 %** calificó la gest
 | 3 | **Riesgo sísmico sin microzonificación** y peligro de inundación en el borde del Huatanay y el aeropuerto | INDECI 2016; Natural Hazards 2024; INGEMMET 2010; Censo | Alto |
 | 4 | **Envejecimiento sin sistema de cuidados**: 14,8 % de personas de 60+, en un distrito con mucho alquiler | Censo 2017 | Alto |
 | 5 | **Residuos**: datos inconsistentes, valorización menor al 1 %, 59 puntos críticos, dependencia de un Haquira colapsado | PIGARS vía plan 2022; Tesis 2022; prensa | Medio |
-| 6 | **Baja inversión y mala composición del gasto**: 35 % en inversión frente a 62–69 % en distritos vecinos; ~29 % de la inversión en la propia sede; dependencia del canon | MEF | Alto |
+| 6 | **Inversión frágil y mal orientada**: el 99 % depende de canon, deuda o donaciones (el canon cayó 44 % entre 2023 y 2026); ~29 % de la inversión fue a la propia sede; ~S/ 28 M sin ejecutar en 2021–2023 | MEF ([análisis](analisis_inversion.md)) | Alto |
 | 7 | **Inseguridad y violencia** (patrimonio y violencia física en ascenso), con inversión en cámaras aún no evaluada | COPROSEC; INEI; MEF | Medio (sin datos distritales) |
 | 8 | **Déficit de árboles y espacio público**: islas de calor en paraderos y ejes | Tesis WBGT 2025; PDC | Medio |
 | 9 | **Comercio informal y mercados obsoletos** (65,9 % de informalidad en la feria; mercado de 1956) | Tesis 2024–2025; Steel 2012 | Medio |
@@ -274,11 +274,14 @@ Las propuestas responden a la evidencia anterior. Cada una indica qué problemas
 
 ### Eje A — Finanzas y capacidad institucional (habilitante)
 
-**P1. Reequilibrar el presupuesto hacia inversión con impacto.** (Problemas 6 y 10)
-- **Meta:** pasar del 35 % al **50 % del PIM en inversión** al 2030, el promedio de los distritos vecinos.
-- **Cartera:** no iniciar nuevos proyectos de infraestructura administrativa hasta cerrar brechas de saneamiento, riesgo, movilidad y espacio público.
-- **Transparencia:** publicar trimestralmente la ejecución por proyecto con datos del MEF.
-- **Indicador:** % del PIM en inversión; inversión por habitante (de S/ 346 a S/ 500).
+**P1. Inversión sostenible y bien orientada.** (Problemas 6 y 10) *(Reformulada; detalle en el [análisis de inversión](analisis_inversion.md), §6.)*
+- **Meta de volumen:** inversión ejecutada por habitante no menor a S/ 300 reales aunque caiga el canon. Se descarta la meta anterior de "50 % del PIM", que se basaba en una comparación sesgada.
+- **Fondo municipal de inversión:** destinar por ordenanza 5 % (2027) hasta 10–15 % (2030) del impuesto predial y de alcabala a inversión, como hacen La Molina (17 %) o Miraflores (13 %).
+- **Cartera:** al menos 70 % de la inversión en brechas priorizadas; no iniciar nuevos proyectos de infraestructura administrativa hasta cerrarlas.
+- **Ejecución:** programación multianual con expedientes listos, para no repetir los ~S/ 28 M sin ejecutar de 2021–2023.
+- **Deuda:** endeudarse solo con tope de servicio de deuda sobre recursos propios.
+- **Transparencia:** publicar trimestralmente la ejecución por proyecto.
+- **Indicadores:** inversión ejecutada por habitante; % de la inversión financiada con recursos propios (de 1 % a ≥ 10 %); % de la inversión en brechas priorizadas.
 
 **P2. Recaudación con catastro y ciencias del comportamiento.** (Problema 6)
 - Aprovechar el proyecto de catastro (S/ 2,8 M ejecutados en 2024–2025) para actualizar valores.
