@@ -42,7 +42,9 @@
 | Superficie | 6,38 km² (el PDC usaba 4,81 km²: hay inconsistencia cartográfica institucional) | INEI / PDC |
 | Población censada 2017 | **58 541** (27 621 hombres, 30 920 mujeres; 100 % urbana) | Censo 2017, Tomo I, Cuadro 1 |
 | Población proyectada 2020 | 61 364 | INEI, Mapa de Pobreza 2018 |
-| Evolución | 8 509 (1961) → 22 831 (1972) → 36 826 (1981) → 51 584 (1993) → 59 134 (2007) → 58 541 (2017). **Estancada desde 2007.** | PDC; INEI |
+| **Población 2025** | **59 185 total** (52 803 censados + 6 382 omitidos estimados) | **Censo 2025**, Indicadores demográficos, Cuadro 1 |
+| Evolución (censados) | 8 509 (1961) → 22 831 (1972) → 36 826 (1981) → 51 584 (1993) → 59 134 (2007) → 58 541 (2017) → **52 803 (2025)**. **Pierde población: −9,8 % de censados entre 2017 y 2025.** | PDC; INEI |
+| Hogares | 17 700 (2017) → **19 315 (2025)**: +9 % de hogares con menos población. Tamaño medio: 3,1 → **2,7 personas por hogar** | Censos 2017 y 2025 |
 | Densidad | ≈ 9 200 hab/km² | Cálculo propio |
 | Peso provincial | 12,8 % de la provincia (4.º de 8 distritos) | COPROSEC 2024 |
 
@@ -60,6 +62,8 @@
 
 El índice de envejecimiento es de ~53 adultos de 65+ por cada 100 menores de 15 años. *(PDC, Cuadro 4; Censo 2017, Tomo I, Cuadros 1 y 3; COPROSEC 2024)*
 
+**Censo 2025:** las personas de **60 años y más ya son el 19,1 %** (10 078 de 52 803 censados), frente a 13,0 % en la provincia. Los menores de 18 años son el 21,1 %, y los de 0 a 5 años solo el 4,9 %. *(Censo 2025, Indicadores demográficos, Cuadro 3)*
+
 **c) Vivienda y hogares (2017).**
 
 | Indicador | Wánchaq | Provincia del Cusco |
@@ -72,7 +76,20 @@ El índice de envejecimiento es de ~53 adultos de 65+ por cada 100 menores de 15
 
 Otros datos de Wánchaq: 78,4 % de las viviendas son de ladrillo; 10,4 % son propias sin título; 994 viviendas están desocupadas y 714 son de uso ocasional. *(Censo 2017, Tomos XII–XV, cuadros VIV1, VIV6, VIV11, VIV22, HOG3)*
 
-**Lectura para la política:** Wánchaq es un distrito **de ingresos medios-altos, envejecido, con alta motorización y mucho alquiler**. Por eso sus problemas no son de pobreza. Son de **congestión, calidad ambiental, riesgo, cuidado de adultos mayores y gestión urbana**. Y tiene base tributaria para financiarse con recursos propios.
+**d) Tenencia de la vivienda según el Censo 2025** (unidad: hogares; el cuadro de 2017 contaba viviendas, así que la comparación entre censos es aproximada):
+
+| Distrito | Alquilada | Propia con título | Propia sin título | Cedida | Propias que no tienen título |
+|---|---|---|---|---|---|
+| **Wánchaq** | **35,8 %** | **47,2 %** | 12,0 % | 4,9 % | **20,2 %** |
+| San Jerónimo | 40,8 % | 31,7 % | 21,3 % | 6,3 % | 40,2 % |
+| San Sebastián | 36,2 % | 32,8 % | 23,9 % | 7,2 % | 42,1 % |
+| Santiago | 34,0 % | 31,3 % | 27,9 % | 6,8 % | 47,1 % |
+| Cusco (distrito) | 30,5 % | 39,7 % | 19,4 % | 10,5 % | 32,8 % |
+| Provincia del Cusco | 34,3 % | 35,3 % | 23,0 % | 7,4 % | 39,4 % |
+
+En Wánchaq, 6 921 hogares alquilan y 11 432 son propietarios (59,2 %). Sigue siendo el distrito con más propiedad titulada de la provincia. En alquiler ya lo superan San Jerónimo y San Sebastián. Los hogares con auto o camioneta son el 29,0 % (provincia: 19,1 %) y los que tienen internet fijo el 66,5 %. *(Censo 2025, Características del hogar, Cuadro 3; Equipamiento del hogar, Cuadro 2)*
+
+**Lectura para la política:** Wánchaq es un distrito **de ingresos medios-altos, envejecido, que pierde población, con alta motorización y mucho alquiler**. Hay más hogares pero más pequeños, y menos residentes. Por eso sus problemas no son de pobreza. Son de **congestión, calidad ambiental, riesgo, cuidado de adultos mayores y gestión urbana**. Y tiene base tributaria para financiarse con recursos propios.
 
 ### 1.3 Finanzas municipales (MEF, verificado)
 
@@ -385,6 +402,7 @@ Las propuestas responden a la evidencia anterior. Cada una indica qué problemas
 **Bases de datos oficiales (consultadas directamente)**
 - MEF, Consulta Amigable – Ejecución del gasto, 2019–2026: https://apps5.mineco.gob.pe/transparencia/Navegador/ (extracción en [`datos/`](datos/README.md))
 - INEI, *Cusco: Resultados Definitivos de los Censos Nacionales 2017*, Tomo I y tablas de vivienda y hogar: https://www.inei.gob.pe/media/MenuRecursivo/publicaciones_digitales/Est/Lib1559/
+- INEI, *Censos Nacionales 2025*, tabulados de Cusco (población, vivienda, hogar; datos actualizados al 15 de julio de 2026): https://censos2025.inei.gob.pe/ — extracto en [`datos/censo2025.md`](datos/censo2025.md)
 - INEI, *Mapa de Pobreza Monetaria Provincial y Distrital 2018*: https://www.inei.gob.pe/media/MenuRecursivo/publicaciones_digitales/Est/Lib1718/Libro.pdf
 
 **Documentos institucionales (leídos completos)**
