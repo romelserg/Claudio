@@ -1,0 +1,4 @@
+pillow
+numpy
+# opcional, para el modo retrato (la versión 5 ya no trae el detector de caras)
+opencv-python-headless<5

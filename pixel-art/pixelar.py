@@ -101,8 +101,13 @@ def mas_cercano(pix, pal, pal_lab=None):
     return d.argmin(1)
 
 
-def paleta_adaptativa(img_small, n, bits=None):
-    """N colores elegidos para esta imagen (k-means de PIL); opcionalmente encajados en la grilla de bits de la consola."""
+def paleta_adaptativa(img_small, n, bits=None, pesos=None):
+    """N colores elegidos para esta imagen (k-means de PIL); opcionalmente encajados en la grilla de bits de la consola.
+    pesos (H,W): cada píxel se repite según su peso, para que la cara reciba más colores."""
+    if pesos is not None:
+        px = np.asarray(img_small).reshape(-1, 3)
+        px = np.repeat(px, np.maximum(1, np.round(pesos.ravel())).astype(int), axis=0)
+        img_small = Image.fromarray(px[None].astype(np.uint8))
     q = img_small.quantize(colors=n, method=Image.Quantize.MAXCOVERAGE, kmeans=4)
     pal = np.array(q.getpalette()[:n * 3]).reshape(-1, 3)
     if bits:
@@ -116,12 +121,13 @@ def cuantizar_bits(arr, bits):
     return np.round(np.round(arr / 255 * niveles) / niveles * 255).astype(np.int64)
 
 
-def limitar_paleta(small, pal, max_colores):
-    """De una paleta fija grande, se queda con los max_colores más usados en esta imagen (como haría un artista)."""
+def limitar_paleta(small, pal, max_colores, pesos=None):
+    """De una paleta fija grande, se queda con los max_colores más usados en esta imagen (como haría un artista).
+    pesos (H,W): cuánto cuenta cada píxel; en modo retrato la cara pesa más, así sus tonos no se pierden."""
     if max_colores is None or max_colores >= len(pal):
         return pal
     idx = mas_cercano(small.reshape(-1, 3).astype(float), pal)
-    conteo = np.bincount(idx, minlength=len(pal))
+    conteo = np.bincount(idx, weights=None if pesos is None else pesos.ravel(), minlength=len(pal))
     # asegura el más oscuro y el más claro usados, que dan el contraste
     lum = pal @ np.array([0.299, 0.587, 0.114])
     usados = np.nonzero(conteo)[0]
@@ -153,6 +159,8 @@ def aplicar_paleta(small, pal, dither="none", intensidad=1.0):
     pal_lab = rgb_a_lab(pal)
     h, w, _ = small.shape
     img = small.astype(np.float64)
+    # intensidad puede ser un número o un mapa (H,W): en modo retrato la cara lleva menos tramado
+    inten = np.broadcast_to(np.asarray(intensidad, dtype=np.float64), (h, w))
 
     if dither.startswith("bayer"):
         n = int(dither[5:])
@@ -162,7 +170,7 @@ def aplicar_paleta(small, pal, dither="none", intensidad=1.0):
         dist = np.sqrt(((pal[:, None] - pal[None]) ** 2).sum(-1))
         dist[dist == 0] = np.inf
         paso = np.median(dist.min(1))
-        img = img + umbral * paso * intensidad
+        img = img + umbral * paso * inten[..., None]
         idx = mas_cercano(img.reshape(-1, 3), pal, pal_lab).reshape(h, w)
         return pal[idx].astype(np.uint8)
 
@@ -177,7 +185,7 @@ def aplicar_paleta(small, pal, dither="none", intensidad=1.0):
                 viejo = img[y, x]
                 nuevo = pal[mas_cercano(viejo[None], pal, pal_lab)[0]]
                 out[y, x] = nuevo
-                err = (viejo - nuevo) * intensidad
+                err = (viejo - nuevo) * inten[y, x]
                 for dy, dx, f in reglas:
                     yy, xx = y + dy, x + dx * sgn
                     if 0 <= yy < h and 0 <= xx < w:
@@ -190,8 +198,9 @@ def aplicar_paleta(small, pal, dither="none", intensidad=1.0):
 
 # ---------------------------------------------------------------- contorno
 
-def contorno(px, pal, umbral=60, color=None):
-    """Pinta de oscuro los bordes fuertes (diferencia de luminancia con el vecino), como el delineado de un sprite."""
+def contorno(px, pal, umbral=60, color=None, zona=None):
+    """Pinta de oscuro los bordes fuertes (diferencia de luminancia con el vecino), como el delineado de un sprite.
+    zona (H,W) bool: limita el delineado a esa región (la persona, en modo retrato)."""
     lum = px.astype(float) @ np.array([0.299, 0.587, 0.114])
     borde = np.zeros(lum.shape, bool)
     dx = lum[:, 1:] - lum[:, :-1]
@@ -201,12 +210,126 @@ def contorno(px, pal, umbral=60, color=None):
     borde[:, 1:] |= -dx > umbral
     borde[:-1, :] |= dy > umbral
     borde[1:, :] |= -dy > umbral
+    if zona is not None:
+        borde &= zona
     if color is None:
-        pal = np.asarray(pal)
-        color = pal[(pal @ np.array([0.299, 0.587, 0.114])).argmin()]
+        color = mas_oscuro(pal)
     out = px.copy()
     out[borde] = color
     return out
+
+
+def mas_oscuro(pal):
+    pal = np.asarray(pal)
+    return pal[(pal @ np.array([0.299, 0.587, 0.114])).argmin()]
+
+
+def silueta(px, persona, color):
+    """Delinea el borde exterior de la persona (los píxeles de fondo que la tocan), como un sprite sobre un escenario."""
+    dentro = persona > 0.5
+    vecino = np.zeros_like(dentro)
+    vecino[1:] |= dentro[:-1]
+    vecino[:-1] |= dentro[1:]
+    vecino[:, 1:] |= dentro[:, :-1]
+    vecino[:, :-1] |= dentro[:, 1:]
+    out = px.copy()
+    out[vecino & ~dentro] = color
+    return out
+
+
+# ---------------------------------------------------------------- modo retrato
+
+def _opencv():
+    try:
+        import cv2
+        return cv2
+    except ImportError:
+        return None
+
+
+def detectar_sujeto(img):
+    """Separa a la persona del fondo. Devuelve (persona, cara, caja_cara): máscaras 0-1 a resolución completa.
+
+    Con OpenCV (pip install "opencv-python-headless<5"): detecta la cara y recorta la silueta con GrabCut,
+    partiendo de la forma típica de un busto. Sin OpenCV usa esa forma de busto supuesta en el centro."""
+    w, h = img.size
+    cv2 = _opencv()
+    bgr = np.ascontiguousarray(np.asarray(img)[..., ::-1])
+    caja = None
+    if cv2 is not None and hasattr(cv2, "CascadeClassifier"):
+        casc = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+        gris = cv2.cvtColor(bgr, cv2.COLOR_BGR2GRAY)
+        caras = casc.detectMultiScale(gris, 1.1, 5, minSize=(max(24, w // 12),) * 2)
+        if len(caras):
+            caja = tuple(int(v) for v in max(caras, key=lambda r: r[2] * r[3]))
+    if caja is None:
+        print("  aviso: no se detectó la cara (¿falta OpenCV?); se supone un retrato centrado", file=sys.stderr)
+        lado = int(min(w, h) * 0.4)
+        caja = ((w - lado) // 2, int(h * 0.22), lado, lado)
+    x, y, fw, fh = caja
+    cx, cy = x + fw / 2, y + fh / 2
+    yy, xx = np.mgrid[0:h, 0:w]
+
+    def elipse(sx, sy, dy=0.0):
+        return ((xx - cx) / (fw * sx)) ** 2 + ((yy - (cy + dy * fh)) / (fh * sy)) ** 2 < 1
+
+    # busto: cabeza ovalada + torso que se abre desde la barbilla hasta ~3 caras de ancho
+    # sin GrabCut que la ajuste, la forma se dibuja más ceñida para no arrastrar fondo
+    holgura = 1.0 if cv2 is not None else 0.82
+    t = (yy - (y + fh * 0.8)) / (fh * 1.2)
+    persona = (elipse(0.75 * holgura, 0.85 * holgura, -0.1)
+               | ((t > 0) & (np.abs(xx - cx) < fw * holgura * (0.45 + 1.4 * np.clip(t, 0, 1)))))
+    if cv2 is not None:
+        m = np.full((h, w), cv2.GC_BGD, np.uint8)
+        m[persona] = cv2.GC_PR_FGD
+        m[(m == cv2.GC_BGD) & elipse(1.0, 1.1, -0.1)] = cv2.GC_PR_BGD
+        m[elipse(0.35, 0.45)] = cv2.GC_FGD
+        cv2.grabCut(bgr, m, None, np.zeros((1, 65)), np.zeros((1, 65)), 6, cv2.GC_INIT_WITH_MASK)
+        persona = (m == cv2.GC_FGD) | (m == cv2.GC_PR_FGD)
+    persona = Image.fromarray(persona.astype(np.uint8) * 255).filter(ImageFilter.GaussianBlur(max(1, w // 300)))
+    cara = Image.fromarray(elipse(0.6, 0.75).astype(np.uint8) * 255).filter(ImageFilter.GaussianBlur(fw / 12))
+    return np.asarray(persona) / 255.0, np.asarray(cara) / 255.0, caja
+
+
+def tratar_fondo(img, persona, modo, color=None, ancho=64):
+    """Simplifica el fondo para que la persona destaque: 'suave' (desenfoca y apaga), 'oscuro', 'plano', 'color'."""
+    if modo == "original":
+        return img
+    bloque = img.width / ancho
+    if modo == "suave":
+        # desenfoca y apaga el color; el tono se lleva al contrario del borde de la persona
+        # (pelo y traje oscuros -> fondo claro), para que la silueta se lea
+        f = np.asarray(ImageEnhance.Color(img.filter(ImageFilter.GaussianBlur(bloque * 1.5))).enhance(0.45)).astype(float)
+        lum = np.asarray(img.convert("L")).astype(float)
+        borde = (persona > 0.2) & (persona < 0.8)
+        claro = lum[borde].mean() < 128 if borde.any() else True
+        objetivo = 175 if claro else 55
+        f = objetivo + (f - f.mean()) * 0.35
+        f = Image.fromarray(np.clip(f, 0, 255).astype(np.uint8))
+    elif modo == "oscuro":
+        f = img.filter(ImageFilter.GaussianBlur(bloque * 1.5))
+        f = ImageEnhance.Brightness(ImageEnhance.Color(f).enhance(0.45)).enhance(0.35)
+    elif modo == "plano":
+        a = np.asarray(img).reshape(-1, 3)[persona.ravel() < 0.1]
+        f = Image.new("RGB", img.size, tuple(int(v) for v in np.median(a, 0) * 0.7))
+    else:
+        f = Image.new("RGB", img.size, _hex(color.lstrip("#"))[0] if color else (60, 188, 252))
+    m = persona[..., None]
+    return Image.fromarray((np.asarray(img) * m + np.asarray(f) * (1 - m)).astype(np.uint8))
+
+
+def encuadrar(img, mascaras, caja, caras_de_ancho):
+    """Recorta a primer plano (cabeza y hombros) para gastar los pocos píxeles en la persona."""
+    x, y, fw, fh = caja
+    lado = int(min(img.width, img.height, fw * caras_de_ancho))
+    izq = int(np.clip(x + fw / 2 - lado / 2, 0, img.width - lado))
+    arriba = int(np.clip(y - 0.55 * fh, 0, img.height - lado))
+    b = (izq, arriba, izq + lado, arriba + lado)
+    return img.crop(b), [m[b[1]:b[3], b[0]:b[2]] for m in mascaras]
+
+
+def _reducir(m, size):
+    return np.asarray(Image.fromarray((m * 255).astype(np.uint8)).resize(size, Image.BOX)) / 255.0
 
 
 # ---------------------------------------------------------------- efectos de pantalla
@@ -289,11 +412,28 @@ PRESETS = {
 
 def pixelar(img, ancho=64, aspecto=1, paleta="adaptativa", colores=16, max_colores=None, bits=None,
             dither="none", intensidad=1.0, contorno_on=False, umbral_contorno=60,
-            contraste=1.0, saturacion=1.0, brillo=1.0, nitidez=1.0, suavizar=0, autocontraste=False, recorte=None, **_):
-    """Devuelve la imagen en su resolución "de consola" (H,W,3) uint8."""
+            contraste=1.0, saturacion=1.0, brillo=1.0, nitidez=1.0, suavizar=0, autocontraste=False, recorte=None,
+            retrato=False, fondo=None, color_fondo=None, encuadre=None, silueta_on=None, **_):
+    """Devuelve la imagen en su resolución "de consola" (H,W,3) uint8.
+
+    retrato=True prioriza a la persona: fondo simplificado, más colores y nitidez para la cara,
+    menos tramado sobre la piel, delineado de la silueta y del interior solo en la persona."""
     img = img.convert("RGB")
     if recorte:
         img = img.crop(recorte)
+    persona = cara = None
+    if retrato:
+        persona, cara, caja = detectar_sujeto(img)
+        if encuadre:
+            img, (persona, cara) = encuadrar(img, (persona, cara), caja, encuadre)
+        # piel sin textura (la mediana aplana manchas y conserva bordes) y luego nitidez a la escala del píxel
+        # final, para que ojos, cejas y barba sobrevivan a la reducción
+        bloque = img.width / ancho
+        lisa = img.filter(ImageFilter.MedianFilter(max(3, int(bloque * 0.6) | 1)))
+        nitida = np.asarray(lisa.filter(ImageFilter.UnsharpMask(radius=bloque * 0.8, percent=70, threshold=2)))
+        m = np.clip(persona * 0.5 + cara, 0, 1)[..., None]
+        img = Image.fromarray((nitida * m + np.asarray(img) * (1 - m)).astype(np.uint8))
+        img = tratar_fondo(img, persona, fondo or "suave", color_fondo, ancho)
     if autocontraste:
         img = ImageOps.autocontrast(img, cutoff=1)  # estira el rango: clave con paletas de 4 colores
     if suavizar:
@@ -306,6 +446,14 @@ def pixelar(img, ancho=64, aspecto=1, paleta="adaptativa", colores=16, max_color
     h = max(1, round(img.height / img.width * ancho))
     small = img.resize((w, h), Image.BOX)  # promedio por bloque: menos ruido que tomar un píxel suelto
     arr = np.asarray(small)
+    pesos = zona = None
+    if retrato:
+        persona, cara = _reducir(persona, (w, h)), _reducir(cara, (w, h))
+        pesos = 1 + 3 * persona + 10 * cara
+        intensidad = intensidad * (0.3 + 0.7 * persona) * (1 - 0.7 * cara)  # tramado sobre la ropa, no en piel ni fondo
+        zona = persona > 0.5
+        if silueta_on is None:
+            silueta_on = True
 
     if paleta in MONOCROMAS:
         # consolas de un solo tono: se trabaja en grises y luego se tiñe con la rampa de la paleta
@@ -314,15 +462,17 @@ def pixelar(img, ancho=64, aspecto=1, paleta="adaptativa", colores=16, max_color
         grises = np.linspace(0, 255, len(rampa)).round()[:, None].repeat(3, 1)
         px = aplicar_paleta(gris, grises, dither, intensidad)
         px = rampa[np.abs(px[..., :1] - grises[None, None, :, 0]).argmin(-1)].astype(np.uint8)
-        return contorno(px, rampa, umbral_contorno) if contorno_on else px
-    if paleta == "adaptativa":
-        pal = paleta_adaptativa(small, colores, bits)
+        pal = rampa
     else:
-        pal = np.array(PALETAS[paleta])
-        pal = limitar_paleta(arr, pal, max_colores)
-    px = aplicar_paleta(arr, pal, dither, intensidad)
+        if paleta == "adaptativa":
+            pal = paleta_adaptativa(small, colores, bits, pesos)
+        else:
+            pal = limitar_paleta(arr, np.array(PALETAS[paleta]), max_colores, pesos)
+        px = aplicar_paleta(arr, pal, dither, intensidad)
     if contorno_on:
-        px = contorno(px, pal, umbral_contorno)
+        px = contorno(px, pal, umbral_contorno, zona=zona)
+    if silueta_on and persona is not None:
+        px = silueta(px, persona, mas_oscuro(pal))
     return px
 
 
@@ -346,6 +496,8 @@ def config(args, preset=None):
             c[k] = v
     c["autocontraste"] = args.autocontraste or c.get("autocontraste", False)
     c["contorno_on"] = args.contorno or c.pop("contorno", False)
+    c.update(retrato=args.retrato, fondo=args.fondo, color_fondo=args.color_fondo, encuadre=args.encuadre,
+             silueta_on=False if args.sin_silueta else None)
     c.setdefault("aspecto", 1)
     return c
 
@@ -408,6 +560,15 @@ def main():
     g = p.add_argument_group("estilo")
     g.add_argument("--contorno", action="store_true", help="delineado oscuro tipo sprite")
     g.add_argument("--umbral-contorno", type=int, help="sensibilidad del delineado (menor = más líneas)")
+    g = p.add_argument_group("modo retrato (que se aprecie más la persona)")
+    g.add_argument("--retrato", action="store_true",
+                   help="detecta a la persona: fondo simple, más colores y nitidez en la cara, silueta delineada")
+    g.add_argument("--fondo", choices=["suave", "oscuro", "plano", "color", "original"],
+                   help="tratamiento del fondo en modo retrato (por defecto suave)")
+    g.add_argument("--color-fondo", help="color hex para --fondo color, p. ej. 3CBCFC (cielo NES)")
+    g.add_argument("--encuadre", type=float, help="recorta a primer plano: ancho del cuadro en caras (p. ej. 2.5)")
+    g.add_argument("--sin-silueta", action="store_true", help="no delinear el borde de la persona")
+    g = p.add_argument_group("pantalla")
     g.add_argument("--rejilla", action="store_true", help="dibuja la cuadrícula de píxeles")
     g.add_argument("--scanlines", action="store_true", help="líneas horizontales de TV")
     g.add_argument("--crt", action="store_true", help="simula un televisor de tubo")
