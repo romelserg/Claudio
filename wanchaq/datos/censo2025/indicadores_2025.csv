@@ -1,0 +1,131 @@
+ambito,tipo,provincia,poblacion_censada,pct_0_14,pct_15_64,pct_65_mas,pct_60_mas,indice_envejecimiento,edad_mediana
+Región Cusco,region,,1295360,23.24,66.58,10.18,14.57,43.8,32
+Provincia del Cusco,provincia,Cusco,456208,21.03,69.83,9.14,12.99,43.4,32
+Cusco (distrito),distrito,Cusco,96746,20.17,69.15,10.68,14.98,52.9,33
+Ccorca,distrito,Cusco,2302,21.98,64.07,13.94,21.03,63.4,37
+Poroy,distrito,Cusco,13091,25.84,68.54,5.61,8.69,21.7,28
+San Jerónimo,distrito,Cusco,67907,21.68,71.32,7.0,10.27,32.3,30
+San Sebastián,distrito,Cusco,124106,21.42,70.74,7.84,11.5,36.6,31
+Santiago,distrito,Cusco,91039,22.3,69.28,8.42,12.26,37.7,31
+Saylla,distrito,Cusco,8214,25.83,67.94,6.22,8.44,24.1,28
+Wánchaq,distrito,Cusco,52803,16.71,68.81,14.48,19.09,86.7,37
+Provincia Acomayo,provincia,Acomayo,21972,21.91,64.72,13.36,18.56,61.0,34
+Acomayo,distrito,Acomayo,4653,24.22,63.53,12.25,16.4,50.6,31
+Acopía,distrito,Acomayo,2374,18.87,68.03,13.1,18.7,69.4,36
+Acos,distrito,Acomayo,2004,20.06,59.88,20.06,26.55,100.0,43
+Mosoc Llacta,distrito,Acomayo,995,18.19,67.94,13.87,20.3,76.2,37
+Pomacanchi,distrito,Acomayo,6857,23.63,64.87,11.51,15.94,48.7,31
+Rondocán,distrito,Acomayo,1838,17.68,63.0,19.31,28.24,109.2,45
+Sangarará,distrito,Acomayo,3251,21.9,66.69,11.41,16.18,52.1,33
+Provincia Anta,provincia,Anta,58962,23.82,63.27,12.92,18.23,54.2,34
+Anta,distrito,Anta,23674,24.8,64.94,10.26,14.56,41.4,32
+Ancahuasi,distrito,Anta,7103,24.81,61.9,13.29,18.91,53.6,34
+Cachimayo,distrito,Anta,2548,22.17,65.86,11.97,16.76,54.0,35
+Chinchaypujio,distrito,Anta,3983,24.15,59.15,16.7,23.17,69.1,37
+Huarocondo,distrito,Anta,4223,22.97,63.01,14.02,20.46,61.0,35
+Limatambo,distrito,Anta,7788,22.3,61.35,16.35,22.51,73.3,37
+Mollepata,distrito,Anta,3039,21.78,60.22,18.0,25.07,82.6,39
+Pucyura,distrito,Anta,3050,23.84,65.74,10.43,14.98,43.7,32
+Zurite,distrito,Anta,3554,22.12,62.61,15.28,21.72,69.1,36
+Provincia Calca,provincia,Calca,66270,23.8,65.19,11.01,15.69,46.3,33
+Calca,distrito,Calca,23652,24.45,65.99,9.55,13.67,39.1,31
+Coya,distrito,Calca,3629,20.39,65.78,13.83,19.67,67.8,35
+Lamay,distrito,Calca,5278,24.18,64.53,11.29,16.16,46.7,32
+Lares,distrito,Calca,7078,25.26,63.08,11.66,16.94,46.1,34
+Písac,distrito,Calca,9798,24.86,65.25,9.89,13.98,39.8,31
+San Salvador,distrito,Calca,4964,23.11,64.63,12.27,17.12,53.1,34
+Taray,distrito,Calca,4667,22.35,68.05,9.6,14.23,43.0,33
+Yanatile,distrito,Calca,7204,21.59,63.27,15.14,21.0,70.2,38
+Provincia Canas,provincia,Canas,32199,20.43,65.46,14.11,19.88,69.0,34
+Yanaoca,distrito,Canas,8364,20.96,65.32,13.73,19.31,65.5,33
+Checca,distrito,Canas,5139,21.05,66.04,12.9,18.12,61.3,32
+Kunturkanki,distrito,Canas,4479,19.04,67.07,13.89,20.81,72.9,36
+Langui,distrito,Canas,2249,16.59,64.52,18.9,26.46,113.9,42
+Layo,distrito,Canas,5577,22.88,64.51,12.61,17.45,55.1,33
+Pampamarca,distrito,Canas,1719,20.83,64.46,14.72,21.0,70.7,35
+Quehue,distrito,Canas,2549,18.48,67.09,14.44,20.24,78.1,35
+Túpac Amaru,distrito,Canas,2123,19.41,63.64,16.96,22.56,87.4,39
+Provincia Canchis,provincia,Canchis,93135,21.97,66.14,11.9,16.85,54.2,33
+Sicuani,distrito,Canchis,56552,22.87,66.67,10.46,14.93,45.7,32
+Checacupe,distrito,Canchis,4699,19.9,67.18,12.92,18.37,64.9,36
+Combapata,distrito,Canchis,4206,23.01,65.83,11.15,16.31,48.5,34
+Marangani,distrito,Canchis,9173,18.5,65.74,15.76,21.45,85.2,37
+Pitumarca,distrito,Canchis,7184,25.42,64.64,9.94,14.52,39.1,32
+San Pablo,distrito,Canchis,4221,18.48,64.06,17.46,24.38,94.5,41
+San Pedro,distrito,Canchis,2376,16.71,63.76,19.53,27.61,116.9,43
+Tinta,distrito,Canchis,4724,19.52,65.03,15.45,21.32,79.2,37
+Provincia Chumbivilcas,provincia,Chumbivilcas,76751,23.63,64.18,12.19,17.39,51.6,32
+Santo Tomás,distrito,Chumbivilcas,27541,25.22,63.72,11.07,15.76,43.9,30
+Capacmarca,distrito,Chumbivilcas,5118,20.14,67.7,12.15,17.7,60.3,34
+Chamaca,distrito,Chumbivilcas,7565,21.61,65.0,13.39,18.9,62.0,35
+Colquemarca,distrito,Chumbivilcas,8498,23.23,62.84,13.93,19.96,60.0,33
+Livitaca,distrito,Chumbivilcas,12660,24.19,65.41,10.4,15.17,43.0,30
+Llusco,distrito,Chumbivilcas,4276,20.07,63.17,16.77,23.78,83.6,37
+Quiñota,distrito,Chumbivilcas,4163,25.2,64.06,10.74,15.9,42.6,30
+Velille,distrito,Chumbivilcas,6930,22.83,62.67,14.5,19.86,63.5,35
+Provincia Espinar,provincia,Espinar,62807,24.37,65.62,10.02,14.47,41.1,31
+Espinar,distrito,Espinar,38309,27.2,65.95,6.85,9.93,25.2,28
+Condoroma,distrito,Espinar,928,15.41,67.78,16.81,23.38,109.1,43
+Coporaque,distrito,Espinar,9639,17.89,66.1,16.02,23.14,89.6,39
+Ocoruro,distrito,Espinar,1503,19.03,66.6,14.37,21.96,75.5,41
+Pallpata,distrito,Espinar,6085,26.28,62.51,11.21,16.14,42.7,31
+Pichigua,distrito,Espinar,2465,18.46,64.22,17.32,24.02,93.8,39
+Suyckutambo,distrito,Espinar,2049,17.08,69.35,13.57,21.77,79.4,40
+Alto Pichigua,distrito,Espinar,1829,17.88,62.22,19.9,26.68,111.3,45
+Provincia la Convención,provincia,la Convención,192797,25.5,65.3,9.2,13.66,36.1,31
+Santa Ana,distrito,la Convención,39050,21.12,68.19,10.69,15.51,50.6,34
+Echarate,distrito,la Convención,23274,20.22,66.43,13.35,19.93,66.0,38
+Huayopata,distrito,la Convención,4385,18.63,58.84,22.53,31.04,120.9,45
+Maranura,distrito,la Convención,4810,16.2,61.7,22.1,30.15,136.5,45
+Ocobamba,distrito,la Convención,4365,20.89,63.89,15.21,21.97,72.8,40
+Quellouno,distrito,la Convención,11165,21.07,66.69,12.23,18.25,58.1,38
+Kimbiri,distrito,la Convención,15719,29.24,65.94,4.82,7.92,16.5,28
+Santa Teresa,distrito,la Convención,6560,18.41,66.57,15.02,21.42,81.5,40
+Vilcabamba,distrito,la Convención,8896,19.62,65.66,14.73,20.56,75.1,39
+Pichari,distrito,la Convención,29157,29.51,66.29,4.2,6.73,14.2,27
+Inkawasi,distrito,la Convención,4453,24.84,65.24,9.93,14.53,40.0,33
+Villa Virgen,distrito,la Convención,2258,27.55,66.61,5.85,9.43,21.2,28
+Villa Kintiarina,distrito,la Convención,3068,34.19,62.22,3.59,6.19,10.5,24
+Megantoni,distrito,la Convención,16333,39.73,57.4,2.87,4.65,7.2,20
+Kumpirushiato,distrito,la Convención,6093,26.41,66.09,7.5,11.96,28.4,30
+Cielo Punco,distrito,la Convención,2319,31.87,63.52,4.61,8.41,14.5,25
+Manitea,distrito,la Convención,3668,28.46,65.89,5.64,9.3,19.8,29
+Unión Asháninka,distrito,la Convención,7224,35.22,62.42,2.37,4.26,6.7,23
+Provincia Paruro,provincia,Paruro,26273,21.57,62.35,16.08,22.68,74.6,38
+Paruro,distrito,Paruro,3504,20.41,64.27,15.33,21.86,75.1,38
+Accha,distrito,Paruro,3295,20.79,62.43,16.78,23.43,80.7,38
+Ccapi,distrito,Paruro,3075,19.64,63.67,16.68,23.87,84.9,40
+Colcha,distrito,Paruro,924,14.18,58.44,27.38,36.58,193.1,53
+Huanoquite,distrito,Paruro,5103,23.38,63.83,12.8,18.64,54.7,35
+Omacha,distrito,Paruro,5431,25.87,61.7,12.43,18.1,48.0,33
+Paccaritambo,distrito,Paruro,1617,16.26,61.72,22.02,29.81,135.4,47
+Pillpinto,distrito,Paruro,912,11.95,47.7,40.35,49.23,337.6,59
+Yaurisque,distrito,Paruro,2412,23.26,63.6,13.14,20.02,56.5,34
+Provincia Paucartambo,provincia,Paucartambo,46034,28.56,62.59,8.85,12.81,31.0,28
+Paucartambo,distrito,Paucartambo,13220,29.83,62.0,8.18,11.74,27.4,27
+Caicay,distrito,Paucartambo,2414,23.2,62.84,13.96,18.93,60.2,34
+Challabamba,distrito,Paucartambo,8528,27.98,61.29,10.73,15.02,38.3,29
+Colquepata,distrito,Paucartambo,7677,27.26,63.2,9.53,14.43,35.0,30
+Huancarani,distrito,Paucartambo,6959,28.06,63.47,8.46,12.27,30.2,28
+Kosñipata,distrito,Paucartambo,7236,30.56,63.64,5.8,8.91,19.0,27
+Provincia Quispicanchi,provincia,Quispicanchi,95152,27.29,63.94,8.76,12.53,32.1,28
+Urcos,distrito,Quispicanchi,10515,23.81,66.07,10.12,14.52,42.5,31
+Andahuaylillas,distrito,Quispicanchi,5769,25.19,65.73,9.08,12.65,36.1,30
+Camanti,distrito,Quispicanchi,2487,28.35,63.77,7.88,11.9,27.8,30
+Ccarhuayo,distrito,Quispicanchi,3002,27.98,63.46,8.56,12.39,30.6,27
+Ccatca,distrito,Quispicanchi,13760,29.19,62.94,7.88,11.08,27.0,25
+Cusipata,distrito,Quispicanchi,4655,24.1,64.27,11.62,16.52,48.2,31
+Huaro,distrito,Quispicanchi,4555,24.39,65.29,10.32,15.35,42.3,31
+Lucre,distrito,Quispicanchi,5287,25.19,65.08,9.72,14.05,38.6,31
+Marcapata,distrito,Quispicanchi,4624,27.34,60.86,11.81,16.13,43.2,29
+Ocongate,distrito,Quispicanchi,18479,30.34,62.89,6.76,9.79,22.3,25
+Oropesa,distrito,Quispicanchi,12016,26.2,66.45,7.35,10.57,28.0,30
+Quiquijana,distrito,Quispicanchi,10003,28.67,61.23,10.1,14.34,35.2,28
+Provincia Urubamba,provincia,Urubamba,66800,23.95,66.07,9.97,14.35,41.6,32
+Urubamba,distrito,Urubamba,22637,24.54,65.92,9.54,13.72,38.9,31
+Chinchero,distrito,Urubamba,12459,24.99,66.04,8.97,13.25,35.9,31
+Huayllabamba,distrito,Urubamba,5352,21.88,64.95,13.17,18.07,60.2,35
+Machupicchu,distrito,Urubamba,4254,22.71,71.16,6.14,9.33,27.0,31
+Maras,distrito,Urubamba,8321,23.43,64.74,11.83,16.63,50.5,33
+Ollantaytambo,distrito,Urubamba,10798,23.96,66.51,9.53,14.22,39.8,32
+Yucay,distrito,Urubamba,2979,22.02,64.32,13.66,18.36,62.0,36
